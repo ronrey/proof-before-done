@@ -1,6 +1,7 @@
 ---
 name: proof-before-done
-description: Use BEFORE declaring any engineering task complete — feature, refactor, bugfix, audit sweep, or design doc. The operational implementation of incremental engineering at the agent layer — an activation-function gate that blocks unverified "done" claims from propagating, surfaces credit-assigned correction signals when work fails the gate, and enforces the bounded-iteration discipline that makes work compound rather than decay. Triggers on: marking TodoWrite tasks complete, writing "✅ pass" / "ship it" / "Phase X complete", authoring "What landed" / "Verification" / "Status" sections, handing work back with "done" / "ready for review".
+description: >-
+  Use BEFORE declaring any engineering task complete — feature, refactor, bugfix, audit sweep, or design doc. The operational implementation of incremental engineering at the agent layer — an activation-function gate that blocks unverified "done" claims from propagating, surfaces credit-assigned correction signals when work fails the gate, and enforces the bounded-iteration discipline that makes work compound rather than decay. Triggers on marking TodoWrite tasks complete, writing "✅ pass" / "ship it" / "Phase X complete", authoring "What landed" / "Verification" / "Status" sections, handing work back with "done" / "ready for review".
 ---
 
 <!--
