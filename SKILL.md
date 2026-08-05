@@ -1,7 +1,7 @@
 ---
 name: proof-before-done
 description: >-
-  Use BEFORE declaring any engineering task complete — feature, refactor, bugfix, audit sweep, or design doc. The operational implementation of incremental engineering at the agent layer — an activation-function gate that blocks unverified "done" claims from propagating, surfaces credit-assigned correction signals when work fails the gate, and enforces the bounded-iteration discipline that makes work compound rather than decay. Triggers on marking TodoWrite tasks complete, writing "✅ pass" / "ship it" / "Phase X complete", authoring "What landed" / "Verification" / "Status" sections, handing work back with "done" / "ready for review".
+  Use BEFORE declaring any engineering task complete — feature, refactor, bugfix, audit sweep, or design doc. The gatekeeper for everything: it fires on every done-claim, no opt-out. The operational implementation of incremental engineering at the agent layer — an activation-function gate that blocks unverified "done" claims from propagating, surfaces credit-assigned correction signals when work fails the gate, enforces the bounded-iteration discipline that makes work compound rather than decay, and blocks self-consistent verification by requiring test fixtures be captured from reality rather than invented. Depth scales with risk (routine work: a short written pass; hard-mandatory surfaces: the full eight questions) but the gate is never skipped. Triggers on marking TodoWrite tasks complete, writing "✅ pass" / "ship it" / "Phase X complete", authoring "What landed" / "Verification" / "Status" sections, handing work back with "done" / "ready for review".
 ---
 
 <!--
@@ -9,8 +9,13 @@ description: >-
 TEMPLATE — FIRST-RUN CUSTOMIZATION CHECKLIST
 
 This is a generic skill template. Before adopting, fill in the placeholders below
-and delete this entire HTML comment block. The seven questions are universal and
+and delete this entire HTML comment block. The eight questions are universal and
 should not be edited; everything else should be tuned to your project.
+
+⚠️ Do not convert the gate to opt-in. See "When to engage" below — the escalation
+criteria an invitation-based gate depends on require the agent to correctly assess
+its own work, which is exactly what fails in the case the gate exists to catch.
+Scale the DEPTH to the risk; never the attendance.
 
 Required substitutions:
   {{PROJECT_NAME}}        Your codebase or organization name (e.g., "Acme Platform")
@@ -39,6 +44,39 @@ placeholders in production.
 
 # proof-before-done
 
+## When to engage
+
+**The gate fires on every done-claim. There is no opt-out.** It is the gatekeeper for everything — no artifact is declared complete without passing through it. What scales is *depth*, never *whether the gate runs*.
+
+Why not opt-in: the escalation criteria a discipline-by-invitation depends on ("am I uncertain this works," "would rollback be painful") require the agent to correctly assess its own work. **An agent that has mis-assessed its work will also mis-assess whether it needs the gate** — so the case the gate exists to catch is precisely the case where it would not be invoked. A gatekeeper the guarded party decides whether to consult is not a gatekeeper.
+
+### Depth scales with risk
+
+**Routine work** — refactors, internal helpers, UI tweaks, doc updates, test additions, dependency bumps within a minor — passes with a **short written statement**: what was claimed, how it was verified, and (if the artifact is a checker) where its fixtures came from. One or two honest sentences. This is not ceremony; it is the minimum record that a claim was checked rather than assumed.
+
+**Escalate to the full eight questions** whenever any of these holds:
+- You're uncertain the change actually works (not just that it compiles)
+- You changed an interface, contract, or shape other code consumes
+- The change is hard to reverse once shipped
+- A bug here would be silent rather than loud (data corruption > crash)
+
+State the escalation explicitly: "Running the full gate because &lt;reason&gt;."
+
+**User-invoked** — "PbD this," "prove it before done," "run the gate" — always means the full eight questions in writing. No exceptions, no abbreviation.
+
+### Hard-mandatory surfaces (full gate, never abbreviated)
+
+On these surfaces the full eight-question gate is mandatory regardless of how small the change looks or how confident the agent is. A one-line diff to an auth check gets the same gate as a rewrite. Tune this list to your system; the shape is "places where a silent failure is expensive or irreversible":
+
+- **Auth & identity** — OAuth flows, token/session handling, RBAC and permissions, signing keys
+- **Migrations & schema** — database migrations, schema changes, backfills, irreversible data transformations
+- **Deploy & infra config** — deploy scripts, container definitions, cloud service config, IAM bindings, secret bindings, env vars that ship to production
+- **Cross-service contracts** — API request/response shapes consumed by other services, event payload shapes, tool/function signatures, anything in a shared types or schemas directory
+- **Money paths** — checkout, payment, billing, subscription, invoicing — anything that moves funds
+- **First production writes** — the first time new code writes to a production data store, the gate fires even if the surface isn't otherwise flagged
+
+Your project's contributor docs may extend this list. They may not shrink it.
+
 ## Why this exists
 
 Agents reach the bar the human holds, not the bar they state. The standard in {{PROJECT_NAME}} is *{{PROJECT_STANDARD}}*, not *working*. "Working" means the code compiled and the happy path ran once. The standard of *{{PROJECT_STANDARD}}* means the counts match, the claims are tested not asserted, the magic numbers are justified, the failure modes are proven, and the doc tells the truth about what it does and does not do.
@@ -49,16 +87,18 @@ The pattern this skill targets: {{ORIGIN_INCIDENT}} The agent reported the work 
 
 The name "proof-before-done" reads like a checklist. That undersells it. What this skill actually is, when injected at the right trigger points in an agent's reasoning loop, is **the operational implementation of incremental engineering at the agent layer.**
 
-Three roles the seven questions play together, each load-bearing for why this discipline produces results that ordinary checklists don't:
+Three roles the eight questions play together, each load-bearing for why this discipline produces results that ordinary checklists don't:
 
 ### 1. Activation function — the per-step gate that blocks unverified propagation
 
-In a neural network, an activation function intercepts signal at every layer boundary and decides whether it's strong enough to propagate. The triggers in this skill's frontmatter (TodoWrite complete, "✅ pass", "Phase X complete", "What landed", "done") are layer boundaries — points where signal would propagate forward to the next stage of work. The seven questions are the evaluation that decides whether the "done" signal passes through.
+In a neural network, an activation function intercepts signal at every layer boundary and decides whether it's strong enough to propagate. The triggers in this skill's frontmatter (TodoWrite complete, "✅ pass", "Phase X complete", "What landed", "done") are layer boundaries — points where signal would propagate forward to the next stage of work. The eight questions are the evaluation that decides whether the "done" signal passes through.
 
-- Signal passes (all seven answered affirmatively in writing) → downstream work can safely depend on this step
+- Signal passes (all eight answered affirmatively in writing) → downstream work can safely depend on this step
 - Signal blocks (any question is "no" or silent) → the step is reworked before propagation; the next layer never builds on a wrong foundation
 
 The gate is **per-step, not per-task.** Every design decision, every commit, every doc section, every claim of completion gets the same gate applied. Without this per-step gate, *something* propagates at every step — either real signal or noise — and the system cannot tell them apart.
+
+The trade-off is deliberate, and it is about **depth, not attendance**. The cost of eight written answers on a typo fix exceeds the value; the cost of skipping the gate on a migration is unbounded. So the typo fix gets one honest sentence and the migration gets the full eight — but both pass through. Scaling depth is what keeps the gate load-bearing; skipping it entirely is what lets an unverified claim propagate unnoticed, because the agent least equipped to judge its own work is the one deciding whether to invoke.
 
 ### 2. Backpropagation — credit-assigned correction when work fails the gate
 
@@ -85,9 +125,9 @@ The full methodology requires a human in the loop — the human provides judgmen
 
 That's why this skill is load-bearing for the codebase-audit methodology and for any iterative-engineering loop. It's not a quality check appended to the work. It is the part of the discipline that survives without you.
 
-## The seven-question gate
+## The eight-question gate
 
-Before declaring any task complete, answer all seven in writing. Any "no," "didn't check," or silence blocks completion until resolved. The cost of running this gate during the work is one extra paragraph per design decision and one extra test per assertion. The cost of skipping it is rewriting docs, finding bugs in already-shipped code, and burning the user's trust in completion claims.
+Before declaring any task complete, answer all eight in writing. Any "no," "didn't check," or silence blocks completion until resolved. The cost of running this gate during the work is one extra paragraph per design decision and one extra test per assertion. The cost of skipping it is rewriting docs, finding bugs in already-shipped code, and burning the user's trust in completion claims.
 
 ### 1. Does my count match my list?
 
@@ -145,6 +185,21 @@ Re-read the opening sentence of the doc. Does it claim more than the test floor 
 
 Sell what you built, not what you wish you'd built. The audience for honest framing is six-months-from-now-you, who will inherit this code and need to know what's actually solved.
 
+### 8. Did the verification's inputs come from reality, or from me?
+
+The other seven questions can all be answered **honestly** by the author and still pass a broken artifact. They test whether the work was *executed* correctly. They do not test whether the author's *premises* were correct — and a verifier built on a wrong premise will confirm itself.
+
+If you wrote the artifact **and** its test fixtures, you have proven self-consistency, not correctness. Name the origin of every fixture:
+
+- **Captured** — taken from real output, a real file, a real request, a real message. Paste the capture command.
+- **Invented** — hand-authored from your mental model of what the input looks like.
+
+**An invented fixture for anything whose job is checking other work — a hook, a linter, a test harness, a validator, a parser, an audit script — is an automatic block.** That artifact's entire value is agreeing with reality; a fixture you imagined agrees only with you. Capture at least one real input before claiming the checker works.
+
+When the artifact is self-authored *and* self-verified, escalate: hand the artifact and its claim to an **independent reviewer that did not write it** (a subagent, a second session, a colleague), briefed to *break* it rather than confirm it — "here is a checker and its tests; find the input it gets wrong." Confirmation-shaped review reproduces the author's blind spot.
+
+> **Origin incident.** A stop-hook was written to catch fabricated character counts in drafted messages. Its test fixtures were hand-typed in the format the author *assumed* was used. Suite passed 5/5. On the first real message the hook miscounted by 4 characters and false-blocked a correct draft — the real rendering separated quoted paragraphs with an *unquoted* blank line, which the parser never saw. The bug and the fixtures shared one wrong premise, so the suite could not fail. One captured real message would have caught it instantly.
+
 ## The closing test
 
 Ask aloud, before declaring done:
@@ -168,14 +223,17 @@ These are the specific failure modes that motivated this skill. Each one is an a
 | **Verification floor mismatch** | "Ships duplicate prevention" with only `tsc` + `eslint` | The claim is about runtime behavior; the floor only proves syntax |
 | **Hidden scope** | "What landed" without "What this does NOT solve" | Reader assumes the problem is solved; production says otherwise |
 | **Self-reported success** | "Agent says done" without independent verification | The agent reaches a plausible-looking endpoint and reports done; the actual work may not have landed |
+| **Self-consistent fixtures** | A parser and its test inputs both hand-written by the same author, suite green | The fixtures encode the same wrong premise as the code, so the suite cannot fail; it tests the implementation's assumptions, not reality |
 
 ## How to apply
 
-When working on engineering tasks, hold the seven questions in mind throughout — not just at the end. They are cheap to answer while writing the code and expensive to answer while rewriting the doc.
+Hold the eight questions in mind throughout the work — not just at the end. They are cheap to answer while writing the code and expensive to answer while rewriting the doc.
 
 When a question cannot be answered yet (e.g., concurrent-pod test needs CI infrastructure that doesn't exist), the answer is *"deferred to Phase X, tracked in [link]"* — never silence. Silence reads as *{{PROJECT_STANDARD}}*. Deferred-with-link reads as honest.
 
-When the user asks "is this done?" — run the gate. Out loud, in writing, in the response. If you can answer all seven affirmatively, the answer is yes. If you can't, the answer is "not yet, here's what's missing."
+When the user asks "is this done?" — run the gate. Out loud, in writing, in the response. If you can answer affirmatively at the depth the work warrants, the answer is yes. If you can't, the answer is "not yet, here's what's missing."
+
+**There is no outside.** Every done-claim passes the gate; only depth varies. On routine work that is a single honest sentence — what was claimed, how it was checked — not a verification narrative. On hard-mandatory surfaces it is the full eight in writing. The discipline is preserved by being universal in attendance and proportional in depth. A gate with an exemption clause is a gate the agent will exempt itself from at precisely the wrong moment.
 
 ## The standard, restated
 

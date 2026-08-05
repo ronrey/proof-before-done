@@ -1,12 +1,37 @@
 # proof-before-done
 
-> A reusable skill that gates "done" claims with a seven-question verification protocol.
+> A reusable skill that gates "done" claims with an eight-question verification protocol.
 > The operational implementation of incremental engineering at the agent layer.
 
 When an AI engineering agent (Claude Code, Codex, or any agent that consumes skill files)
-is about to claim work is "done," this skill fires and forces the agent to answer seven
-specific questions in writing before the claim propagates downstream. Each question
+is about to claim work is "done," this skill fires and forces the agent to answer a
+specific set of questions in writing before the claim propagates downstream. Each question
 targets a recurring failure mode of agent-generated work.
+
+The gate fires on **every** done-claim — there is no opt-out. What scales is depth: routine
+work passes with a short written statement, while risky surfaces (auth, migrations, deploy
+config, cross-service contracts, money paths) get the full eight questions. An agent that
+has mis-assessed its work will also mis-assess whether it needs a gate, so the decision to
+run it is not the agent's to make.
+
+## The eight questions
+
+1. **Does my count match my list?** Recount from ground truth, never from memory or from what the previous step said.
+2. **Did I test what I asserted, or did I assert it?** An unverified claim is fine when labeled unverified. Silent assertion is not.
+3. **Are my magic numbers justified at the call site?** Why 24h and not 12h, one line away from the constant.
+4. **Are my string-encoded keys schemaed?** One encoder, one decoder — not eighteen callers composing the same identifier inline.
+5. **What does my work NOT solve?** Written before the "what landed" section, or you don't know the boundary of what you fixed.
+6. **Does my verification floor match my claim?** A type-check proves syntax. If the claim is about runtime behavior, downgrade the claim or raise the floor.
+7. **Is my framing honest about what I did?** Re-read the opening sentence. Does it claim more than the floor proves?
+8. **Did the verification's inputs come from reality, or from me?** ← *the one most teams are missing*
+
+Question 8 is the one that catches what the other seven structurally cannot. The first
+seven test whether the work was **executed** correctly; none of them tests whether the
+**premise** was right. If you wrote the artifact and also wrote its test fixtures, a green
+suite proves the two agree with each other — both can encode the same wrong assumption, so
+the suite cannot fail. For anything whose job is checking other work (a hook, a linter, a
+validator, a parser, an audit script), an invented fixture is an automatic block: capture
+at least one real input first.
 
 ## What's in this repo
 
@@ -39,10 +64,10 @@ repositories.
 The skill is not a checklist. It is a small neural network for high-quality coding,
 operating at the agent layer:
 
-- **Activation function** — the seven questions act as a per-step gate that decides
+- **Activation function** — the eight questions act as a per-step gate that decides
   whether "done" signals propagate forward to downstream work. Below the threshold (any
-  question fails or is silent), work is reworked. At the threshold (all seven pass),
-  downstream work can safely depend on this step.
+  question fails or is silent), work is reworked. At the threshold (all pass at the depth
+  the work warrants), downstream work can safely depend on this step.
 
 - **Backpropagation** — when the gate catches a failure, the correction signal flows
   backward through the layers of work that produced it. The specific assertion, the
@@ -112,16 +137,31 @@ loaded correctly, is in the comment block in `SKILL.md` itself.
 
 ## Origin and provenance
 
-Developed inside the ComOS engineering ecosystem (a multi-repository AI-native commerce
-platform). Originally codified on 2026-05-19 after an audit surfaced seven distinct
-failure modes in one design document. Validated at scale on 2026-05-21 during a session
-that compressed roughly three weeks of architectural work across four production
-repositories into a single afternoon. The methodology framing (activation function,
-backpropagation, bounded iteration) was named explicitly on 2026-05-22 after the
-neural-network structure was recognized in retrospect.
+Developed inside the ComOS engineering ecosystem (an AI-native commerce platform).
+Originally codified on 2026-05-19 after an audit surfaced seven distinct failure modes in
+one design document — those seven became the first seven questions. Validated at scale on
+2026-05-21 during a session that compressed roughly three weeks of architectural work
+across four production repositories into a single afternoon. The methodology framing
+(activation function, backpropagation, bounded iteration) was named explicitly on
+2026-05-22 after the neural-network structure was recognized in retrospect.
 
-The skill is currently in production across four ComOS engineering repositories
-(federation, retail, portal, services).
+**The eighth question came later, and it came from the gate failing.** A checker was
+written, its fixtures were hand-authored by the same author, and the suite passed 5/5
+while the checker was wrong — because the code and the fixtures encoded one shared wrong
+premise. The other seven questions could all be answered honestly and still let it
+through: they test whether the work was *executed* correctly, not whether its premises
+were. Question 8 asks where the verification's inputs came from, and it is the reason a
+self-authored checker with self-authored tests no longer counts as verified.
+
+Two related corrections landed at the same time. The gate had briefly been made opt-in,
+and it silently stopped firing — an agent that has mis-assessed its work also mis-assesses
+whether it needs a gate. It is now always-on with depth scaling to risk. And the list of
+hard-mandatory surfaces exists because "how small is this diff" turned out to be a poor
+predictor of how expensive the failure would be.
+
+The skill runs in production in the ComOS repositories today, and has been through several
+generations of the codebase it governs — including deprecating two of the four repos it
+was originally validated in.
 
 ## License and attribution
 
