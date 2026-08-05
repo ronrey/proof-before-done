@@ -8,9 +8,23 @@
 > The cross-references stay in the public version because they are *evidence* that this
 > methodology has been run at scale on real production work, not just sketched.
 >
+> Those names are preserved as they were on the dates described, and several have since
+> changed: `comos-services` was renamed `comos-bookings`, and both `comai-portal` and the
+> retail repo have since been deprecated. The methodology outlived the repositories it was
+> first run in, which is the more interesting fact about it. Names are not updated in place
+> here, because a dated account that quietly renames its subjects stops being a record.
+>
 > The accompanying `SKILL.md` in this same repo is the *portable* part — the operational
 > implementation of this methodology at the agent layer. If you adopt nothing else, adopt
 > that. This longer document explains *why* it works.
+>
+> ⚠️ One substantive drift, called out rather than silently patched: this document was
+> written when the gate had **seven** questions. It now has **eight** — the added question
+> asks whether the verification's inputs were captured from reality or invented by the
+> author, and it exists because the first seven can all be answered honestly and still pass
+> an artifact whose premise was wrong. The activation-function framing below is unchanged
+> by this; the gate simply got one threshold stricter. `SKILL.md` is authoritative for the
+> question set.
 
 > The loop that, on 2026-05-21, compressed roughly three weeks of architectural work into
 > an afternoon. Across three repositories (federation, portal/retail, services), produced a
@@ -201,10 +215,10 @@ outputs zero below a threshold and linear above it. The non-linearity is what le
 network learn complex patterns instead of just linear combinations.
 
 Proof-before-done has exactly this shape. At each step of the loop, it gates whether the
-signal "this is done" propagates forward. Below the threshold (any of the seven questions
+signal "this is done" propagates forward. Below the threshold (any of the eight questions
 fails): the signal doesn't propagate. The work is not done. It gets reworked. At the
-threshold (all seven questions pass): the signal propagates cleanly. Downstream work can
-depend on it.
+threshold (all eight pass, at the depth the work's risk warrants): the signal propagates
+cleanly. Downstream work can depend on it.
 
 The gate is **per-step, not per-task**. Every design decision, every code change, every
 commit gets the same activation function applied. Without this per-step gate, *something*
@@ -214,7 +228,7 @@ apart.
 ### The bouncing as backpropagation
 
 Forward pass = produce a draft. Loss function = the gap between what the work claims and
-what the work actually does (the proof-before-done seven questions). Backpropagation =
+what the work actually does (the proof-before-done eight questions). Backpropagation =
 the loss signal travels backward through the prior decisions, adjusting weights at each
 layer so future forward passes are less wrong.
 
@@ -430,8 +444,9 @@ will degrade in exactly the way it's designed to catch. Run the loop. Trust the 
 
 - `comAI/CLAUDE.md` and `comai-portal/CLAUDE.md` — the codebase-audit methodology that
   produces the accumulated weights this loop reads against
-- `.claude/skills/proof-before-done/SKILL.md` (in every ComOS engineering repo) — the
-  seven-question gate that acts as the per-step activation function
+- `SKILL.md` (in this repo; installed at `.claude/skills/proof-before-done/SKILL.md` in
+  every ComOS engineering repo) — the eight-question gate that acts as the per-step
+  activation function
 - `comos-federation/docs/MULTI-PLATFORM-FEDERATION.md` + `MULTI-PLATFORM-FEDERATION-PLAN.md`
   — the canonical example of seed → working doc → plan, produced by this methodology
 - `comos-services/docs/PLATFORM.md` + `docs/decisions/multi-platform-federation.md` —
