@@ -247,3 +247,4 @@ This skill exists so the engineer agent holds the same bar, every time, without 
 
 - {{METHODOLOGY_DOC}} — the engineering methodology this skill operationally implements at the agent layer. The methodology doc explains *why* this works (with the activation-function, backpropagation, and Wright-brothers framings worked out in detail); this skill enforces *how* the agent participates in it.
 - Your project's contributor docs (e.g., `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`) — the codebase-audit methodology this skill is load-bearing for.
+- initiate-change — the companion skill at the upstream *let's change X* gate: https://github.com/ronrey/initiate-change
