@@ -33,6 +33,20 @@ the suite cannot fail. For anything whose job is checking other work (a hook, a 
 validator, a parser, an audit script), an invented fixture is an automatic block: capture
 at least one real input first.
 
+## The upstream companion
+
+proof-before-done is the **downstream** half of a two-gate discipline:
+
+| Stage | Gate | Fires at | What it gates |
+|---|---|---|---|
+| **Decide** | [initiate-change](https://github.com/ronrey/initiate-change) | *let's change X* | Whether the proposal is well-formed enough to be built against |
+| Do | (the work itself) | — | — |
+| **Declare done** | proof-before-done (this repo) | *this is done* | Whether the claim of done is well-formed enough to propagate |
+
+Together they bracket every deliberate change: one gate at the moment you decide to
+change something, one at the moment you claim it's finished. Each stands alone —
+installing this skill does not require the other.
+
 ## What's in this repo
 
 Two files, both useful on their own, more useful together:
@@ -184,3 +198,5 @@ more teams run it.
 
 - `SKILL.md` — the template (the part you adopt)
 - `INCREMENTAL-ENGINEERING.md` — the methodology (the part you understand)
+- [initiate-change](https://github.com/ronrey/initiate-change) — the companion skill at
+  the upstream *let's change X* gate
