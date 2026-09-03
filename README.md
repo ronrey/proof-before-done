@@ -73,6 +73,27 @@ and validated when a single afternoon's worth of work, run through the disciplin
 compressed roughly three weeks of architectural design into four hours across four
 repositories.
 
+## The QC series — what the gate produces at scale
+
+The emergent behaviors this gate creates when run without exception — a corpus that
+converges instead of drifting, hunts its own flaws before symptoms appear, and learns
+its own shape — are documented in an eight-part series written from the production
+system the skill governs. Start at Part 1:
+
+1. [The Skill That Grew a Mind](https://comos-federation.com/blog/the-skill-that-grew-a-mind)
+2. [Why "Done" Is the Most Dangerous Word in Software](https://comos-federation.com/blog/why-done-is-the-most-dangerous-word-in-software)
+3. [The Cure Is Cheap Because the Cause Is Close](https://comos-federation.com/blog/the-cure-is-cheap-because-the-cause-is-close)
+4. [Self-Healing Is Search](https://comos-federation.com/blog/self-healing-is-search)
+5. [Question Everything — Especially Your Own Thoughts](https://comos-federation.com/blog/question-everything-especially-your-own-thoughts)
+6. [The Gate Binds Its Own Builders](https://comos-federation.com/blog/the-gate-binds-its-own-builders)
+7. [The Corpus Is a Neural Network](https://comos-federation.com/blog/the-corpus-is-a-neural-network)
+8. [The Quality of Your Aim — The Honesty Ratio Is the Loss Curve](https://comos-federation.com/blog/the-quality-of-your-aim-the-honesty-ratio-is-the-loss-curve)
+
+Parts 1–5 make the case for why the gate works. Parts 6–8 show what it does at scale,
+including the constraints that bind the gate's own authors (Part 6) and the persisted
+loss curve the whole discipline optimizes (Part 8). If the README's neural-network
+framing below reads as metaphor, Part 7 is the article that argues it is structure.
+
 ## What the skill is, structurally
 
 The skill is not a checklist. It is a small neural network for high-quality coding,
@@ -200,3 +221,6 @@ more teams run it.
 - `INCREMENTAL-ENGINEERING.md` — the methodology (the part you understand)
 - [initiate-change](https://github.com/ronrey/initiate-change) — the companion skill at
   the upstream *let's change X* gate
+- [The QC series](https://comos-federation.com/blog/the-skill-that-grew-a-mind) — eight
+  articles on the emergent behaviors and patterns the gated corpus produces, written
+  from the production system this skill governs
